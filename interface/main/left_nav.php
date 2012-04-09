@@ -1235,6 +1235,7 @@ if (!empty($reg)) {
           <?php if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0',xl('Certificates'),'usergroup/ssl_certificates_admin.php'); ?>
           <?php if (acl_check('admin', 'super'   )) genMiscLink('RTop','adm','0',xl('RxNorm'),'../interface/code_systems/standard_tables_manage.php?mode=rxnorm'); ?>
           <?php if (acl_check('admin', 'super'   )) genMiscLink('RTop','adm','0',xl('SNOMED'),'../interface/code_systems/standard_tables_manage.php?mode=snomed'); ?>
+          <?php if (acl_check('admin', 'super'   )) genMiscLink('RTop','adm','0',xl('ICD10'),'../interface/code_systems/standard_tables_manage.php?mode=icd10'); ?>
         </ul>
       </li>
     </ul>

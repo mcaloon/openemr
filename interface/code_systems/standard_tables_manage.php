@@ -36,7 +36,7 @@ if (!acl_check('admin', 'super')) {
 
 // Collect parameters (ensure mode is either rxnorm or snomed)
 $mode = isset($_GET['mode']) ? $_GET['mode'] : '';
-if ($mode != 'rxnorm' && $mode != 'snomed') {
+if ($mode != 'rxnorm' && $mode != 'snomed' && $mode != 'icd10') {
     exit;
 }
 $process = isset($_GET['process']) ? $_GET['process'] : '0';
@@ -45,8 +45,11 @@ $process = isset($_GET['process']) ? $_GET['process'] : '0';
 if ($mode == 'rxnorm') {
     $mainPATH = $GLOBALS['fileroot']."/contrib/rxnorm";
 }
-else { // $mode == 'snomed'
+else if ($mode == 'snomed') {
     $mainPATH = $GLOBALS['fileroot']."/contrib/snomed";
+}
+else { // $mode == 'icd10'
+    $mainPATH = $GLOBALS['fileroot']."/contrib/icd10";
 }
 
 // Get current revision (if installed)
@@ -55,8 +58,11 @@ $current_revision = '';
 if ($mode == 'rxnorm') {
     $sqlReturn = sqlQuery("SELECT DATE_FORMAT(`revision_date`,'%Y-%m-%d') as `revision` FROM `standardized_tables_track` WHERE `name` = 'RXNORM' ORDER BY `revision_date` DESC");
 }
-else { // $mode == 'snomed'
+else if ($mode == 'snomed') {
     $sqlReturn = sqlQuery("SELECT DATE_FORMAT(`revision_date`,'%Y-%m-%d') as `revision` FROM `standardized_tables_track` WHERE `name` = 'SNOMED' ORDER BY `revision_date` DESC");
+}
+else { // $mode == 'icd10') {
+    $sqlReturn = sqlQuery("SELECT DATE_FORMAT(`revision_date`,'%Y-%m-%d') as `revision` FROM `standardized_tables_track` WHERE `name` = 'ICD10' ORDER BY `revision_date` DESC");
 }
 if (!empty($sqlReturn)) {
     $installed_flag = true;
@@ -125,8 +131,10 @@ if (!empty($revisions)) {
 <?php html_header_show();?>
 <?php if ($mode == 'rxnorm') { ?>
     <title><?php echo htmlspecialchars( xl('RxNorm'), ENT_NOQUOTES); ?></title>
-<?php } else { //$mode == 'snomed' ?>
+<?php } else if ($mode == 'snomed') { ?>
     <title><?php echo htmlspecialchars( xl('SNOMED'), ENT_NOQUOTES); ?></title>
+<?php } else { //$mode == 'icd10' ?>
+    <title><?php echo htmlspecialchars( xl('ICD10'), ENT_NOQUOTES); ?></title>
 <?php } ?>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 
@@ -146,8 +154,10 @@ function loading_show() {
 
 <?php if ($mode == 'rxnorm') { ?>
     <span class="title"><?php echo htmlspecialchars( xl('RxNorm Database'), ENT_NOQUOTES); ?></span><br><br>
-<?php } else { //$mode == 'snomed' ?>
+<?php } else if ($mode == 'snomed') { ?>
     <span class="title"><?php echo htmlspecialchars( xl('SNOMED Database'), ENT_NOQUOTES); ?></span><br><br>
+<?php } else { //$mode == 'icd10' ?>
+    <span class="title"><?php echo htmlspecialchars( xl('ICD10 Database'), ENT_NOQUOTES); ?></span><br><br>
 <?php } ?>
 
 <?php if ($pending_new || $pending_upgrade) { ?>

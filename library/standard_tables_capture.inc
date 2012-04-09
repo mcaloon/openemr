@@ -237,8 +237,12 @@ function update_tracker_table($type,$revision) {
         sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`) VALUES (NOW(),'RXNORM',?)", array($revision) );
         return true;
     }
-    else { //$type == 'snomed'
+    else if ($type == 'snomed') {
         sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`) VALUES (NOW(),'SNOMED',?)", array($revision) );
+        return true;
+    }
+    else { //$type == 'icd10'
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`) VALUES (NOW(),'ICD10',?)", array($revision) );
         return true;
     }
     return false;
