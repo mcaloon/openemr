@@ -88,7 +88,7 @@ foreach ($files_array as $file) {
                 $revisions = array_merge($revisions,$temp_date);
             }
         }
-        else { // $mode == 'snomed'
+        else if ($mode == 'snomed') {
             if (preg_match("/SnomedCT_INT_([0-9]{8}).zip/",$file,$matches)) {
                 $temp_date = array(substr($matches[1],0,4)."-".substr($matches[1],4,-2)."-".substr($matches[1],6)=>$mainPATH."/".$matches[0]);
                 $revisions = array_merge($revisions,$temp_date);
@@ -100,6 +100,15 @@ foreach ($files_array as $file) {
             else {
                 // nothing
             }
+        }
+        else if ($mode == 'icd10') { 
+	    if (preg_match("/icd10([0-9]{4})enMeta.zip/",$file,$matches)) {
+                $temp_date = array("01-01-".substr($matches[1],0,4).substr($matches[1],6)=>$mainPATH."/".$matches[0]);
+                $revisions = array_merge($revisions,$temp_date);
+            }
+	}
+        else {
+            // nothing
         }
     }
 }
