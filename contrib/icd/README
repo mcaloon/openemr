@@ -1,0 +1,18 @@
+Steps to install the ICD database:
+1) Copy the zipped ICD database files into this directory available from
+
+	ICD9
+
+	http://www.cms.gov/Medicare/Coding/ICD9ProviderDiagnosticCodes/Downloads/cmsv29_master_descriptions.zip
+
+	ICD10
+
+   	https://www.cms.gov/Medicare/Coding/ICD10/Downloads/DiagnosisGEMs_2012.zip
+	https://www.cms.gov/Medicare/Coding/ICD10/Downloads/ProcedureGEMs_2012.zip
+	https://www.cms.gov/Medicare/Coding/ICD10/Downloads/ReimbursementMapping_2012.zip
+	https://www.cms.gov/Medicare/Coding/ICD10/Downloads/2012_PCS_long_and_abbreviated_titles.zip
+	https://www.cms.gov/Medicare/Coding/ICD10/Downloads/ICD10OrderFiles_2012.zip
+
+2) In OpenEMR, go to Administration->Other->ICD in order to then install/upgrade
+   the ICD database.
+
