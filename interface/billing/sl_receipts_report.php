@@ -322,9 +322,11 @@
           // If a diagnosis code was given then skip any invoices without
           // that diagnosis.
           if ($form_icdcode) {
-            $tmp = sqlQuery("SELECT count(*) AS count FROM billing WHERE " .
+            $tmp = sqlQuery("SELECT count(*) AS count FROM billing B ".
+	      "JOIN code_type C on c.ct_key = B.code_type " .
+	      "WHERE " .
               "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
-              "code_type = 'ICD9' AND code LIKE '$form_icdcode' AND " .
+              "ct_active = 1 AND code LIKE '$form_icdcode' AND " .
               "activity = 1");
             if (empty($tmp['count'])) {
               $ids_to_skip[$trans_id] = 1;
@@ -411,9 +413,11 @@
         // If a diagnosis code was given then skip any invoices without
         // that diagnosis.
         if ($form_icdcode) {
-          $tmp = sqlQuery("SELECT count(*) AS count FROM billing WHERE " .
+          $tmp = sqlQuery("SELECT count(*) AS count FROM billing B " .
+            "JOIN code_type C on c.ct_key = B.code_type " .
+	    "WHERE " .
             "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
-            "code_type = 'ICD9' AND code LIKE '$form_icdcode' AND " .
+            "ct_active = 1 AND code LIKE '$form_icdcode' AND " .
             "activity = 1");
           if (empty($tmp['count'])) {
             $ids_to_skip[$trans_id] = 1;
@@ -499,8 +503,8 @@
           if ($form_icdcode) {
             if (!SLQueryValue("SELECT count(*) FROM invoice WHERE " .
               "invoice.trans_id = '" . $row['trans_id'] . "' AND " .
-              "( invoice.description ILIKE 'ICD9:$form_icdcode %' OR " .
-              "invoice.serialnumber ILIKE 'ICD9:$form_icdcode' )"))
+              "( invoice.description ILIKE 'ICD%:$form_icdcode %' OR " .
+              "invoice.serialnumber ILIKE 'ICD%:$form_icdcode' )"))
             {
               $skipping = true;
               continue;

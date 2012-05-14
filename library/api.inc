@@ -45,10 +45,12 @@ function formSubmit ($tableName, $values, $id, $authorized = "0")
 		//case where key looks like "[a-zA-Z]*diagnosis[0-9]" which is special, it is used to auto add ICD codes
 		
 		elseif (strpos($key,"diagnosis") == (strlen($key) -10) && !(strpos($key,"diagnosis")=== false )) {
-			//icd auto add ICD9-CM
+
+			// if necessary, default to the active icd code type 
 			if (!empty($value)) {
+	          	        $icd_type = sqlQuery("SELECT ct_key FROM code_type WHERE ct_key LIKE 'ICD%' AND ct_active = 1);
 				$code_array = split(" ",$value,2);
-				addBilling(date("Ymd"), 'ICD9-M', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
+				addBilling(date("Ymd"), $icd_type['ct_key'], $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
 			}
 		}
 		else {

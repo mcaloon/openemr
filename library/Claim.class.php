@@ -144,10 +144,13 @@ class Claim {
       "encounter = '{$this->encounter_id}'";
     $this->encounter = sqlQuery($sql);
 
+    // get the billing records for the active code_type
     // Sort by procedure timestamp in order to get some consistency.
-    $sql = "SELECT * FROM billing WHERE " .
+    $sql = "SELECT * FROM billing B " .
+      "JOIN code_types C ON C.ct_key = B.code_type " .
+      "WHERE " .
       "encounter = '{$this->encounter_id}' AND pid = '{$this->pid}' AND " .
-      "(code_type = 'CPT4' OR code_type = 'HCPCS' OR code_type = 'COPAY' OR code_type = 'ICD9') AND " .
+      "ct_active = 1 AND " .
       "activity = '1' ORDER BY date, id";
     $res = sqlStatement($sql);
     while ($row = sqlFetchArray($res)) {
@@ -156,7 +159,7 @@ class Claim {
         continue;
       }
       // Save all diagnosis codes.
-      if ($row['code_type'] == 'ICD9') {
+      if (strpos($row['code_type'], 'ICD') !== false) {
         $this->diags[$row['code']] = $row['code'];
         continue;
       }
