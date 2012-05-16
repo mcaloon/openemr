@@ -335,6 +335,7 @@ function icd_import($version) {
     else { // ICD 10
         $db_create = file_get_contents($db_dir.'/create_ICD10.sql', true);
         $db_alter = file_get_contents($db_dir.'/alter_ICD10.sql', true);
+        $db_update = file_get_contents($db_dir.'/update_ICD10.sql', true);
     }
 
     // create all the ICD tables
