@@ -82,13 +82,14 @@ CREATE TABLE `icd10_reimbr_pcs_9_10` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for cm `ICD10 order file`
+-- Table structure for dx `ICD10 order file`
 --
 
 DROP TABLE IF EXISTS `icd10_dx_order_code`;
 CREATE TABLE `icd10_dx_order_code` (
   `dx_id` 		int,		-- Order number, Primary Key
   `dx_code`		varchar(7),	-- ICD10-CM or ICD10-PCS code. Dots are not included.
+  `formatted_dx_code`	varchar(10),	-- ICD10-CM or ICD10-PCS code with Dots included.
   `valid_for_coding`	char,		-- 0 if the code is a “header” – not valid for submission on a UB04.
 					-- 1 if the code is valid for submission on a UB04.
   `short_desc`		varchar(60),	-- Short description
