@@ -50,7 +50,7 @@ function temp_unarchive($filename,$type) {
 	// leave the orignal code alone but we need timestamps from the unzipped files
 	// to determine the "version" of the icd releases
 	//
-	if ($type != 'icd') {
+	if (!strpos($type, 'icd')) {
             $zip = new ZipArchive;
             if ($zip->open($filename) === TRUE) {
                 if (!($zip->extractTo($GLOBALS['temporary_files_dir']."/".$type))) {
@@ -246,8 +246,8 @@ function snomed_import() {
 function icd_import($version) {
 
     // set up paths
-    $db_dir = $GLOBALS['fileroot'] . "/sql";
-    $dir_icd = $GLOBALS['temporary_files_dir']."/icd/";
+    $db_dir = $GLOBALS['fileroot'] . "/sql/library";
+    $dir_icd = $GLOBALS['temporary_files_dir']."/icd".$version."/";
     $dir=str_replace('\\','/',$dir_icd);
     $db_create = '';
     $db_load = '';
@@ -434,8 +434,12 @@ function update_tracker_table($type,$revision,$version) {
         sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`) VALUES (NOW(),'SNOMED',?,?)", array($revision, $version) );
         return true;
     }
-    else { //$type == 'icd'
-        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`) VALUES (NOW(),'ICD',?,?)", array($revision, $version) );
+    else if ($type == 'icd9') {
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`) VALUES (NOW(),'ICD9',?,?)", array($revision, $version) );
+        return true;
+    }
+    else { // $type == 'icd10') 
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`) VALUES (NOW(),'ICD10',?,?)", array($revision, $version) );
         return true;
     }
     return false;
