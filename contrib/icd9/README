@@ -1,0 +1,10 @@
+Steps to install the ICD 9 database:
+1) Copy the zipped ICD 9 database files into this directory available from
+
+	ICD9
+
+	http://www.cms.gov/Medicare/Coding/ICD9ProviderDiagnosticCodes/Downloads/cmsv29_master_descriptions.zip
+
+2) In OpenEMR, go to Administration->Other->ICD9 in order to then install/upgrade
+   the ICD9 database.
+

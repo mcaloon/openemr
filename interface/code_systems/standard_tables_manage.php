@@ -44,7 +44,7 @@ if (!acl_check('admin', 'super')) {
 
 // Collect parameters (ensure mode is either rxnorm or snomed)
 $mode = isset($_GET['mode']) ? $_GET['mode'] : '';
-if ($mode != 'rxnorm' && $mode != 'snomed' && $mode != 'icd') {
+if ($mode != 'rxnorm' && $mode != 'snomed' && $mode != 'icd9' && $mode != 'icd10') {
     exit;
 }
 $process = isset($_GET['process']) ? $_GET['process'] : '0';
@@ -61,8 +61,11 @@ if ($mode == 'rxnorm') {
 else if ($mode == 'snomed') {
     $mainPATH = $GLOBALS['fileroot']."/contrib/snomed";
 }
-else { // $mode == 'icd'
-    $mainPATH = $GLOBALS['fileroot']."/contrib/icd";
+else if ($mode == 'icd9') {
+    $mainPATH = $GLOBALS['fileroot']."/contrib/icd9";
+}
+else { // ($mode == 'icd10') 
+    $mainPATH = $GLOBALS['fileroot']."/contrib/icd10";
 }
 
 //
@@ -85,8 +88,11 @@ if ($mode == 'rxnorm') {
 else if ($mode == 'snomed') {
     $sqlReturn = sqlQuery("SELECT DATE_FORMAT(`revision_date`,'%Y-%m-%d') as `revision`, `revision_version`, `name` FROM `standardized_tables_track` WHERE `name` = 'SNOMED' ORDER BY `revision_version`, `revision_date` DESC");
 }
-else { // $mode == 'icd') {
-    $sqlReturn = sqlQuery("SELECT DATE_FORMAT(`revision_date`,'%Y-%m-%d') as `revision`, `revision_version`, `name` FROM `standardized_tables_track` WHERE `name` = 'ICD' ORDER BY `revision_version`, `revision_date` DESC");
+else if ($mode == 'icd9') {
+    $sqlReturn = sqlQuery("SELECT DATE_FORMAT(`revision_date`,'%Y-%m-%d') as `revision`, `revision_version`, `name` FROM `standardized_tables_track` WHERE `name` = 'ICD9' ORDER BY `revision_version`, `revision_date` DESC");
+}
+else { // $mode == 'icd10') {
+    $sqlReturn = sqlQuery("SELECT DATE_FORMAT(`revision_date`,'%Y-%m-%d') as `revision`, `revision_version`, `name` FROM `standardized_tables_track` WHERE `name` = 'ICD10' ORDER BY `revision_version`, `revision_date` DESC");
 }
 if (!empty($sqlReturn)) {
     $installed_flag = true;
@@ -119,8 +125,10 @@ if ($mode == 'rxnorm') { ?>
     <span class="title"><?php echo htmlspecialchars( xl('RxNorm Database'), ENT_NOQUOTES); ?></span><br><br>
 <?php } else if ($mode == 'snomed') { ?>
     <span class="title"><?php echo htmlspecialchars( xl('SNOMED Database'), ENT_NOQUOTES); ?></span><br><br>
-<?php } else { //$mode == 'icd' ?>
-    <span class="title"><?php echo htmlspecialchars( xl('ICD Database'), ENT_NOQUOTES); ?></span><br><br>
+<?php } else if ($mode == 'icd9') { ?>
+    <span class="title"><?php echo htmlspecialchars( xl('ICD 9 Database'), ENT_NOQUOTES); ?></span><br><br>
+<?php } else { //$mode == 'icd10' ?>
+    <span class="title"><?php echo htmlspecialchars( xl('ICD 10 Database'), ENT_NOQUOTES); ?></span><br><br>
 <?php } 
 
 //
@@ -167,15 +175,9 @@ foreach ($files_array as $file) {
                 // nothing
             }
         }
-        else if ($mode == 'icd') { 
-	    // CMS file naming conventions may be indeterminate, so someone should 
-	    // expect to get in here and fix this for ICD 11 or maybe even interim
-	    // ICD 9 or 10 releases
-	    if (preg_match("/cmsv29/i", $file, $matches)) {
-
-        	// ICD 9 versions are tagged as 9
-        	$version = '9';
-    	    } else {
+        else {
+       	    $version = '9';
+	    if ($mode == 'icd10') { 
         	$version = '10';
     	    }
 
@@ -204,14 +206,10 @@ foreach ($files_array as $file) {
                 	    continue;
         	    }
         	    //$file_date = array(date('Y-m-d', filemtime($GLOBALS['temporary_files_dir']."/".$mode."/".$content_file))=>date('Y-m-d', filemtime($GLOBALS['temporary_files_dir']."/".$mode."/".$content_file)));
-        	    $file_date = array('date'=>date('Y-m-d', filemtime($GLOBALS['temporary_files_dir']."/".$mode."/".$content_file)), 'version'=>$version);
+        	    $file_date = array('date'=>date('Y-m-d', filemtime($GLOBALS['temporary_files_dir']."/".$mode."/".$content_file)), 'version'=>$version, 'path'=>$file);
         	    $revisions = array_merge($revisions, $file_date);
     	    }
-
 	}
-        else {
-            // nothing
-        }
     }
 }
 if (!empty($revisions)) {
@@ -245,8 +243,10 @@ if (!empty($revisions)) {
     <title><?php echo htmlspecialchars( xl('RxNorm'), ENT_NOQUOTES); ?></title>
 <?php } else if ($mode == 'snomed') { ?>
     <title><?php echo htmlspecialchars( xl('SNOMED'), ENT_NOQUOTES); ?></title>
-<?php } else { //$mode == 'icd' ?>
-    <title><?php echo htmlspecialchars( xl('ICD'), ENT_NOQUOTES); ?></title>
+<?php } else if ($mode == 'icd9') { ?>
+    <title><?php echo htmlspecialchars( xl('ICD9'), ENT_NOQUOTES); ?></title>
+<?php } else { //$mode == 'icd10' ?>
+    <title><?php echo htmlspecialchars( xl('ICD10'), ENT_NOQUOTES); ?></title>
 <?php } ?>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 
@@ -288,7 +288,8 @@ function loading_show() {
 	//
 	// remember we already unzipped the ICD stuff to get the revision date
 	//
-	if ($mode != 'icd') {
+        if (strpos($mode, "icd") === false) {
+echo strpos($mode, "icd") . "<BR>";
 		handle_zip_file($mode, $file_revision_path);
 	}
         // load the database
