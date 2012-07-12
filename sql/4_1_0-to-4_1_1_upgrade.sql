@@ -320,6 +320,240 @@ ALTER TABLE `documents` ADD COLUMN `couch_docid` VARCHAR(100) NULL;
 ALTER TABLE `documents` ADD COLUMN `couch_revid` VARCHAR(100) NULL;
 #EndIf
 
+#IfNotTable icd9_dx_code
+CREATE TABLE `icd9_dx_code` (
+  `dx_id` SERIAL,
+  `dx_code`		varchar(5),
+  `formatted_dx_code`   varchar(6),
+  `short_desc`          varchar(60),
+  `long_desc`           varchar(300),
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
+#EndIf
+
+#IfNotIndex icd9_dx_code dx_code
+CREATE INDEX `dx_code` on `icd9_dx_code` (`dx_code`);
+#EndIf
+
+#IfNotIndex icd9_dx_code formatted_dx_code
+CREATE INDEX `formatted_dx_code` on `icd9_dx_code` (`formatted_dx_code`);
+#EndIf
+
+#IfNotTable icd9_sg_code
+CREATE TABLE `icd9_sg_code` (
+  `sg_id` SERIAL,
+  `sg_code`             varchar(5),
+  `formatted_sg_code`   varchar(6),
+  `short_desc`		varchar(60),
+  `long_desc`		varchar(300),
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
+#EndIf
+
+#IfNotIndex icd9_sg_code sg_code
+CREATE INDEX `sg_code` on `icd9_sg_code` (`sg_code`);
+#EndIf
+
+#IfNotIndex icd9_sg_code formatted_sg_code
+CREATE INDEX `formatted_sg_code` on `icd9_sg_code` (`formatted_sg_code`);
+#EndIf
+
+#IfNotTable icd9_dx_long_code 
+CREATE TABLE `icd9_dx_long_code` (
+  `dx_id` SERIAL,
+  `dx_code`		varchar(5),
+  `long_desc`		varchar(300),
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
+#EndIf
+
+#IfNotTable icd9_sg_long_code
+CREATE TABLE `icd9_sg_long_code` (
+  `sq_id` SERIAL,
+  `sg_code`		varchar(5),
+  `long_desc`		varchar(300),
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
+#EndIf
+
+#IfNotTable icd10_gem_pcs_9_10
+CREATE TABLE `icd10_gem_pcs_9_10` (
+  `map_id` SERIAL,
+  `pcs_icd9_source` varchar(5) default NULL,
+  `pcs_icd10_target` varchar(7) default NULL,
+  `flags` varchar(5) default NULL,
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
+#EndIf
+
+#IfNotIndex icd10_gem_pcs_9_10 pcs_icd9_source
+CREATE INDEX `pcs_icd9_source` on `icd10_gem_pcs_9_10` (`pcs_icd9_source`);
+#EndIf
+
+#IfNotTable icd10_gem_pcs_10_9
+CREATE TABLE `icd10_gem_pcs_10_9` (
+  `map_id` SERIAL,
+  `pcs_icd10_source` varchar(7) default NULL,
+  `pcs_icd9_target` varchar(5) default NULL,
+  `flags` varchar(5) default NULL,
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
+#EndIf
+
+#IfNotIndex icd10_gem_pcs_10_9 pcs_icd10_source
+CREATE INDEX `pcs_icd10_source` on `icd10_gem_pcs_10_9` (`pcs_icd10_source`);
+#EndIf
+
+#IfNotTable icd10_gem_dx_9_10
+CREATE TABLE `icd10_gem_dx_9_10` (
+  `map_id` SERIAL,
+  `dx_icd9_source` varchar(5) default NULL,
+  `dx_icd10_target` varchar(7) default NULL,
+  `flags` varchar(5) default NULL,
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
+#EndIf
+
+#IfNotIndex icd10_gem_dx_9_10 dx_icd9_source
+CREATE INDEX `dx_icd9_source` on `icd10_gem_dx_9_10` (`dx_icd9_source`);
+#EndIf
+
+#IfNotTable icd10_gem_dx_10_9
+CREATE TABLE `icd10_gem_dx_10_9` (
+  `map_id` SERIAL,
+  `dx_icd10_source` varchar(7) default NULL,
+  `dx_icd9_target` varchar(5) default NULL,
+  `flags` varchar(5) default NULL,
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
+#EndIf
+
+#IfNotIndex icd10_gem_dx_10_9 dx_icd10_source
+CREATE INDEX `dx_icd10_source` on `icd10_gem_dx_10_9` (`dx_icd10_source`);
+#EndIf
+
+#IfNotTable icd10_reimbr_dx_9_10
+CREATE TABLE `icd10_reimbr_dx_9_10` (
+  `map_id` SERIAL,
+  `code` 	varchar(8),
+  `code_cnt` 	tinyint,
+  `ICD9_01` 	varchar(5),
+  `ICD9_02` 	varchar(5),
+  `ICD9_03` 	varchar(5),
+  `ICD9_04` 	varchar(5),
+  `ICD9_05` 	varchar(5),
+  `ICD9_06` 	varchar(5),
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
+#EndIf
+
+#IfNotIndex icd10_reimbr_dx_9_10 code
+CREATE INDEX `code` on `icd10_reimbr_dx_9_10` (`code`);
+#EndIf
+
+#IfNotTable icd10_reimbr_pcs_9_10
+CREATE TABLE `icd10_reimbr_pcs_9_10` (
+  `map_id` 	SERIAL,
+  `code` 	varchar(8),
+  `code_cnt` 	tinyint,
+  `ICD9_01` 	varchar(5),
+  `ICD9_02` 	varchar(5),
+  `ICD9_03` 	varchar(5),
+  `ICD9_04` 	varchar(5),
+  `ICD9_05` 	varchar(5),
+  `ICD9_06` 	varchar(5),
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
+#EndIf
+
+#IfNotIndex icd10_reimbr_pcs_9_10 code
+CREATE INDEX `code` on `icd10_reimbr_pcs_9_10` (`code`);
+#EndIf
+
+#IfNotTable icd10_dx_order_code
+CREATE TABLE `icd10_dx_order_code` (
+  `dx_id` 		int,
+  `dx_code`		varchar(7),
+  `formatted_dx_code`	varchar(10),
+  `valid_for_coding`	char,
+  `short_desc`		varchar(60),
+  `long_desc`		varchar(300),
+  `active` tinyint default 0,
+  `revision` int default 0,
+  PRIMARY KEY  (`dx_id`)
+) ENGINE=MyISAM;
+#EndIf
+
+#IfNotIndex icd10_dx_order_code dx_code
+CREATE INDEX `dx_code` ON `icd10_dx_order_code` (`dx_code`) USING BTREE;
+#EndIf
+
+#IfNotIndex icd10_dx_order_code formatted_dx_code
+CREATE INDEX `formatted_dx_code` on `icd10_dx_order_code` (`formatted_dx_code`) USING BTREE;
+#EndIf
+
+#IfNotTable icd10_pcs_order_code
+CREATE TABLE `icd10_pcs_order_code` (
+  `pcs_id` 		int,
+  `pcs_code`		varchar(7),
+  `valid_for_coding`	char,
+  `short_desc`		varchar(60),
+  `long_desc`		varchar(300),
+  `active` tinyint default 0,
+  `revision` int default 0,
+  PRIMARY KEY  (`pcs_id`)
+) ENGINE=MyISAM;
+#EndIf
+
+#IfNotIndex icd10_pcs_order_code pcs_code
+CREATE INDEX `pcs_code` on `icd10_pcs_order_code` (`pcs_code`);
+#EndIf
+
+#IfNotTable supported_external_dataloads
+CREATE TABLE `supported_external_dataloads` (
+  `load_id` SERIAL,
+  `load_type` varchar(24) NOT NULL DEFAULT '',
+  `load_source` varchar(24) NOT NULL DEFAULT 'CMS',
+  `load_release_date` date NOT NULL,
+  `load_filename` varchar(256) NOT NULL DEFAULT '',
+  `load_checksum` varchar(32) NOT NULL DEFAULT ''
+) ENGINE=MyISAM;
+#EndIf
+
+#IfMissingColumn standardized_tables_track file_checksum
+ALTER TABLE `standardized_tables_track` ADD COLUMN `file_checksum` varchar(32);
+#EndIf
+
+#IfNotRow supported_external_dataloads load_type ICD9 
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD9', 'CMS', '2011-10-01', 'cmsv29_master_descriptions.zip', 'c360c2b5a29974d6c58617c7378dd7c4');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD9', 'CMS', '2012-10-01', 'cmsv30_master_descriptions.zip', 'eb26446536435f5f5e677090a7976b15');
+#EndIf
+
+#IfNotRow supported_external_dataloads load_type ICD10 
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2011-10-01', '2012_PCS_long_and_abbreviated_titles.zip', '201a732b649d8c7fba807cc4c083a71a');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2011-10-01', 'DiagnosisGEMs_2012.zip', '6758c4a3384c47161ce24f13a2464b53');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2011-10-01', 'ICD10OrderFiles_2012.zip', 'a76601df7a9f5270d8229828a833f6a1');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2011-10-01', 'ProcedureGEMs_2012.zip', 'f37416d8fab6cd2700b634ca5025295d');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2011-10-01', 'ReimbursementMapping_2012.zip', '8b438d1fd1f34a9bb0e423c15e89744b');
+#EndIf
+
 #IfMissingColumn documents storagemethod
 ALTER TABLE `documents` ADD COLUMN `storagemethod` TINYINT(4) DEFAULT '0' NOT NULL COMMENT '0->Harddisk,1->CouchDB';
 #EndIf
@@ -332,4 +566,3 @@ insert into list_options (list_id, option_id, title, seq, option_value, mapping,
 insert into list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','DOB'       ,'Date of Birth' ,'40','3','','');
 insert into list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','pubpid'    ,'External ID'   ,'50','3','','');
 #EndIf
-

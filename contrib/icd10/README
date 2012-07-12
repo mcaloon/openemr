@@ -1,14 +1,20 @@
+<div class="dialog"><p>
 Steps to install the ICD 10 database:
-1) Copy the zipped ICD 10 database files into this directory available from
-
-	ICD10
-
-   	https://www.cms.gov/Medicare/Coding/ICD10/Downloads/DiagnosisGEMs_2012.zip
-	https://www.cms.gov/Medicare/Coding/ICD10/Downloads/ProcedureGEMs_2012.zip
-	https://www.cms.gov/Medicare/Coding/ICD10/Downloads/ReimbursementMapping_2012.zip
-	https://www.cms.gov/Medicare/Coding/ICD10/Downloads/2012_PCS_long_and_abbreviated_titles.zip
-	https://www.cms.gov/Medicare/Coding/ICD10/Downloads/ICD10OrderFiles_2012.zip
-
-2) In OpenEMR, go to Administration->Other->ICD10 in order to then install/upgrade
-   the ICD10 database.
-
+<ol>
+<li>The raw data feed release can be obtained from <b><a href="https://www.cms.gov/Medicare/Coding/ICD10">this CMS location</a></b>
+<li>Place the downloaded ICD 10 database zip files into the contrib/icd10 directory.
+</li>
+<li>Return to this page and you will be able to
+   complete the ICD10 installation process by clicking on the ICD10 section header
+</li>
+</ol>
+<br>
+<h5>These are the 2012 links</h5>
+<ul>
+        <li><a href="https://www.cms.gov/Medicare/Coding/ICD10/Downloads/DiagnosisGEMs_2012.zip">DiagnosisGEMs_2012</a></li>
+        <li><a href="https://www.cms.gov/Medicare/Coding/ICD10/Downloads/ProcedureGEMs_2012.zip">ProcedureGEMs_2012</a></li>
+        <li><a href="https://www.cms.gov/Medicare/Coding/ICD10/Downloads/ReimbursementMapping_2012.zip">ReimbursementMapping_2012</a></li>
+        <li><a href="https://www.cms.gov/Medicare/Coding/ICD10/Downloads/2012_PCS_long_and_abbreviated_titles.zip">2012_PCS_long_and_abbreviated_titles</a></li>
+        <li><a href="https://www.cms.gov/Medicare/Coding/ICD10/Downloads/ICD10OrderFiles_2012.zip">ICD10OrderFiles_2012</a></li>
+</ul>
+</p>

@@ -17,7 +17,7 @@
 /*******************************************************************/
 
 // Function to copy a package to temp
-// $type (rxnorm, snomed etc.)
+// $type (RXNORM, SNOMED etc.)
 function temp_copy($filename,$type) {
 
     if(!file_exists($filename)) {
@@ -39,7 +39,7 @@ function temp_copy($filename,$type) {
 }
 
 // Function to unarchive a package
-// $type (rxnorm, snomed etc.)
+// $type (RXNORM, SNOMED etc.)
 function temp_unarchive($filename,$type) {
     $filename = $GLOBALS['temporary_files_dir']."/".$type."/".basename($filename);
     if(!file_exists($filename)) {
@@ -47,45 +47,30 @@ function temp_unarchive($filename,$type) {
     }
     else {
 
-	// leave the orignal code alone but we need timestamps from the unzipped files
-	// to determine the "version" of the icd releases
+	// let's uzip the file
+	// use checksums to determine the "version" 
 	//
-	if (!strpos($type, 'icd')) {
-            $zip = new ZipArchive;
-            if ($zip->open($filename) === TRUE) {
-                if (!($zip->extractTo($GLOBALS['temporary_files_dir']."/".$type))) {
-                    return false;
-                }
-                $zip->close();
-                return true;
-            }
-            else {
+        $zip = new ZipArchive;
+        if ($zip->open($filename) === TRUE) {
+            if (!($zip->extractTo($GLOBALS['temporary_files_dir']."/".$type))) {
                 return false;
             }
-	} else {
-	    // use shell based unzip to keep the original timestamps of the incoming data files
-            //
-            $cmd = "unzip -oq " . $filename . " -d " . $GLOBALS['temporary_files_dir'] . "/" . $type . " 2>&1 1> /dev/null;";
-            $retval = shell_exec($cmd);
-            if ($retval) {
-                return false;
-            }
-            else {
-                return true;
-            }
-	}
+            $zip->close();
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }
 
-
-// Function to import the rxnorm tables
+// Function to import the RXNORM tables
 // $is_windows_flag - pass the IS_WINDOWS constant
 function rxnorm_import($is_windows_flag) {
 
-
     // set paths
-    $dirScripts = $GLOBALS['temporary_files_dir']."/rxnorm/scripts/mysql";
-    $dir = $GLOBALS['temporary_files_dir']."/rxnorm/rrf";
+    $dirScripts = $GLOBALS['temporary_files_dir']."/RXNORM/scripts/mysql";
+    $dir = $GLOBALS['temporary_files_dir']."/RXNORM/rrf";
     $dir=str_replace('\\','/',$dir);
 
     $rx_info = array();
@@ -139,20 +124,18 @@ function rxnorm_import($is_windows_flag) {
             $replacement=$dir."/".$file_name;
 
             $pattern='/'.$file_name.'/';
-            if(strpos($val,$file_name) !== false)     {
-                $val1[]=       str_replace($file_name,$replacement,$val);
+            if(strpos($val,$file_name) !== false) {
+                $val1 = str_replace($file_name,$replacement,$val);
+        	if(trim($val1)!='') {
+            	    sqlStatement($val1);
+        	}
             }
-        }
-    }
-    foreach($val1 as $val){
-        if(trim($val)!='')      {
-            sqlStatement($val);
         }
     }
     return true;
 }
 
-// Function to import snomed tables
+// Function to import SNOMED tables
 function snomed_import() {
 
     // set up array
@@ -192,7 +175,7 @@ function snomed_import() {
 );
 
     // set up paths
-    $dir_snomed = $GLOBALS['temporary_files_dir']."/snomed/";
+    $dir_snomed = $GLOBALS['temporary_files_dir']."/SNOMED/";
     $sub_path="Terminology/Content/";
     $dir=$dir_snomed;
     $dir=str_replace('\\','/',$dir);
@@ -204,7 +187,7 @@ function snomed_import() {
         }
     }
 
-    // reading the snomed directry and identifying the files to import and replacing the variables by originals values.
+    // reading the SNOMED directory and identifying the files to import and replacing the variables by originals values.
     if( is_dir($dir) && $handle = opendir($dir)) {
         while (false !== ($filename = readdir($handle))) {
             if ($filename != "." && $filename != ".." && !strpos($filename,"zip")) {
@@ -241,24 +224,22 @@ function snomed_import() {
     return true;
 }
 
-// Function to import ICD tables $version differentiates ICD 9, 10 and eventually 11 (circa 2018 :-) etc.
+// Function to import ICD tables $type differentiates ICD 9, 10 and eventually 11 (circa 2018 :-) etc.
 //
-function icd_import($version) {
+function icd_import($type) {
 
     // set up paths
     $db_dir = $GLOBALS['fileroot'] . "/sql/library";
-    $dir_icd = $GLOBALS['temporary_files_dir']."/icd".$version."/";
+    $dir_icd = $GLOBALS['temporary_files_dir']."/".$type."/";
     $dir=str_replace('\\','/',$dir_icd);
-    $db_create = '';
     $db_load = '';
-    $db_alter = '';
     $db_update = '';
 
     // the incoming array is a metadata array containing keys that substr match to the incoming filename
     // followed by the field name, position and length of each fixed length text record in the incoming
-    // flat files. There are separate definitions for ICD 9 and 10 based on the version passed in
+    // flat files. There are separate definitions for ICD 9 and 10 based on the type passed in
     $incoming = array();
-    if ($version == 9) {
+    if ($type == 'ICD9') {
         $incoming['SHORT_DX'] = array('#TABLENAME#' => "icd9_dx_code", 
 		'#FLD1#' => "dx_code", '#POS1#' => 1, '#LEN1#' => 5, 
 		'#FLD2#' => "short_desc", '#POS2#' => 7, '#LEN2#' => 60);
@@ -323,30 +304,18 @@ function icd_import($version) {
 
     // set up the start of the load script to be appended from the incoming array defined above where incoming 
     // file matches 
-    $db_load = "LOAD DATA LOCAL INFILE '#INFILE#' INTO TABLE #TABLENAME# FIELDS TERMINATED BY '\0' (@var) SET ";
+    $db_load = "LOAD DATA LOCAL INFILE '#INFILE#' INTO TABLE #TABLENAME# FIELDS TERMINATED BY '\0' (@var) SET revision = 0, ";
     $col_template = "#FLD# = trim(Substring(@var, #POS#, #LEN#))";
 
     // load scripts
-    if ($version == '9') {
-        $db_create = file_get_contents($db_dir.'/create_ICD9.sql', true);
-        $db_alter = file_get_contents($db_dir.'/alter_ICD9.sql', true);
+    if ($type == 'ICD9') {
         $db_update = file_get_contents($db_dir.'/update_ICD9.sql', true);
     } 
     else { // ICD 10
-        $db_create = file_get_contents($db_dir.'/create_ICD10.sql', true);
-        $db_alter = file_get_contents($db_dir.'/alter_ICD10.sql', true);
         $db_update = file_get_contents($db_dir.'/update_ICD10.sql', true);
     }
-
-    // create all the ICD tables
-    $cmd_array=explode(";",$db_create);
-    foreach($cmd_array as $val){
-        if(trim($val)!=''){
-            sqlStatement($val);
-        }
-    }
-
     // load all the data
+
     if( is_dir($dir) && $handle = opendir($dir)) {
         while (false !== ($filename = readdir($handle))) {
 	    // bypass unwanted entries
@@ -384,6 +353,15 @@ function icd_import($version) {
 			$run_sql .= ",";
     		    }
             	    sqlStatement($run_sql);
+
+		    // now update the revision for this load
+                    $res = sqlStatement("SELECT max(revision) rev FROM " . $incoming[$this_key]['#TABLENAME#']);
+                    $row = sqlFetchArray($res);
+                    $next_rev = $row['rev'] + 1;
+		    $run_sql = "UPDATE " . $incoming[$this_key]['#TABLENAME#'] . " SET active = 0"; 
+                    sqlQuery($run_sql);
+		    $run_sql = "UPDATE " . $incoming[$this_key]['#TABLENAME#'] . " SET active = 1, revision = $next_rev WHERE revision = 0";
+                    sqlQuery($run_sql);
 		    break;
 		}
 	    }
@@ -392,16 +370,8 @@ function icd_import($version) {
     }
     else {
         echo htmlspecialchars( xl('ERROR: No ICD import directory.'), ENT_NOQUOTES)."<br>";
+	return;
     }
-
-    // now alter the tables to set up surrogate keys and indexes
-    $cmd_array=explode(";",$db_alter);
-    foreach($cmd_array as $val){
-        if(trim($val)!=''){
-            sqlStatement($val);
-        }
-    }
-
     // now update the tables where necessary
     if (strlen($db_update) > 0) {
     	$cmd_array=explode(";",$db_update);
@@ -416,7 +386,7 @@ function icd_import($version) {
 }
 
 // Function to clean up temp files
-// $type (rxnorm etc.)
+// $type (RXNORM etc.)
 function temp_dir_cleanup($type) {
     if(is_dir($GLOBALS['temporary_files_dir']."/".$type)) {
         rmdir_recursive($GLOBALS['temporary_files_dir']."/".$type);
@@ -424,22 +394,22 @@ function temp_dir_cleanup($type) {
 }
 
 // Function to update version tracker table if successful
-// $type (rxnorm etc.)
-function update_tracker_table($type,$revision,$version) {
-    if ($type == 'rxnorm') {
-        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`) VALUES (NOW(),'RXNORM',?,?)", array($revision, $version) );
+// $type (RXNORM etc.)
+function update_tracker_table($type,$revision,$version,$file_checksum) {
+    if ($type == 'RXNORM') {
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'RXNORM',?,?,?)", array($revision, $version, $file_checksum) );
         return true;
     }
-    else if ($type == 'snomed') {
-        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`) VALUES (NOW(),'SNOMED',?,?)", array($revision, $version) );
+    else if ($type == 'SNOMED') {
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'SNOMED',?,?,?)", array($revision, $version, $file_checksum) );
         return true;
     }
-    else if ($type == 'icd9') {
-        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`) VALUES (NOW(),'ICD9',?,?)", array($revision, $version) );
+    else if ($type == 'ICD9') {
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'ICD9',?,?,?)", array($revision, $version, $file_checksum) );
         return true;
     }
-    else { // $type == 'icd10') 
-        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`) VALUES (NOW(),'ICD10',?,?)", array($revision, $version) );
+    else { // $type == 'ICD10') 
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'ICD10',?,?,?)", array($revision, $version, $file_checksum) );
         return true;
     }
     return false;
@@ -464,9 +434,7 @@ function rmdir_recursive($dir) {
 
 // function to cleanup temp, copy and unarchive the zip file
 function handle_zip_file($mode, $file) {
-
         // 1. copy the file to temp directory
-        echo htmlspecialchars( xl('Copying and extracting the database file: '), ENT_NOQUOTES) . "<B>" . basename($file) . "</B><BR>";
         if (!temp_copy($file,$mode)) {
             echo htmlspecialchars( xl('ERROR: Unable to copy the file.'), ENT_NOQUOTES)."<br>";
             temp_dir_cleanup($mode);
