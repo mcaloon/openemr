@@ -932,6 +932,7 @@ CREATE TABLE `standardized_tables_track` (
   `name` varchar(255) NOT NULL default '' COMMENT 'name of standardized tables such as RXNORM',
   `revision_version` varchar(255) NOT NULL default '' COMMENT 'revision of standardized tables that were imported',
   `revision_date` datetime default NULL COMMENT 'revision of standardized tables that were imported',
+  `file_checksum` varchar(32),
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
