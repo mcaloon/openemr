@@ -238,8 +238,7 @@ function icd_import($type) {
 
     // set up paths
     $db_dir = $GLOBALS['fileroot'] . "/sql/library";
-    $dir_icd = $GLOBALS['temporary_files_dir']."/".$type."/";
-    $dir=str_replace('\\','/',$dir_icd);
+    $dir_icd = $GLOBALS['temporary_files_dir'].DIRECTORY_SEPARATOR.$type.DIRECTORY_SEPARATOR;
     $db_load = '';
     $db_update = '';
 
@@ -324,7 +323,7 @@ function icd_import($type) {
     }
     // load all the data
 
-    if( is_dir($dir) && $handle = opendir($dir)) {
+    if( is_dir($dir_icd) && $handle = opendir($dir_icd)) {
         while (false !== ($filename = readdir($handle))) {
 	    // bypass unwanted entries
 	    if (!stripos($filename, ".txt") || stripos($filename,"diff")) {
